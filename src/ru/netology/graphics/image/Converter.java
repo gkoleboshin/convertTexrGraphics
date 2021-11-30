@@ -20,13 +20,17 @@ public class Converter implements TextGraphicsConverter {
         BufferedImage img = ImageIO.read(new URL(url));
         int newWidth = img.getWidth();
         int newHeight = img.getHeight();
-        int ratio = img.getWidth()/ img.getHeight();
+        int ratio = img.getWidth()> img.getHeight()? img.getWidth()/ img.getHeight(): img.getHeight()/img.getWidth();
         if (ratio > maxRatio){
             throw new BadImageSizeException(ratio,maxRatio);
         }
-        if (newWidth < maxWidth){
+        if (newWidth > maxWidth){
             newWidth = maxWidth;
-            newHeight = newHeight/(newWidth/maxWidth);
+            newHeight = maxWidth/ratio;
+        }
+        if (newHeight > maxHeight){
+            newHeight = maxHeight;
+            newWidth = maxHeight*ratio;
         }
         Image scaledImage = img.getScaledInstance(newWidth, newHeight, BufferedImage.SCALE_SMOOTH);
         BufferedImage bwImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_GRAY);
@@ -43,7 +47,9 @@ public class Converter implements TextGraphicsConverter {
                     schema = new Schema();
                 }
                 charColor = schema.convert(color);
-                result.append(charColor);
+                result
+                        .append(charColor)
+                        .append(charColor);
             }
             result.append("\n");
         }
